@@ -17,7 +17,7 @@ from itertools import product
 
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
-from utils import preprocess_data, predict_and_eval, split_train_dev_test, tune_hparams
+from utils import preprocess_data, predict_and_eval, split_train_dev_test, tune_hparams, get_hyperpara_combo
 
 digits = datasets.load_digits()
 data = digits.images
@@ -26,10 +26,8 @@ test_dev = {'test_size': [0.1, 0.2, 0.3],'dev_size': [0.1, 0.2, 0.3]}
 hyperparameters = {'gamma':[0.001,0.01,0.1,1,10,100],"c_ranges":[0.1,1,2,5,10]}
 
 
-hyperparameter_combinations = list(product(*hyperparameters.values()))
-test_dev_combinations = list(product(*test_dev.values()))
-
-
+hyperparameter_combinations = get_hyperpara_combo(hyperparameters)
+test_dev_combinations = get_hyperpara_combo(test_dev)
 
 
 for td in test_dev_combinations:

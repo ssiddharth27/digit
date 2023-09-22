@@ -1,5 +1,6 @@
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
+from itertools import product
 
 def preprocess_data(data):
    n_samples = len(data)
@@ -20,6 +21,11 @@ def split_train_dev_test(X, y, test_size, dev_size):
    shuffle = False, random_state = 42)
    
    return X_train, X_test, y_train, y_test, X_val, y_val
+   
+def get_hyperpara_combo(hyper_dict):
+
+   hyperparameter_combinations = list(product(*hyper_dict.values()))
+   return hyperparameter_combinations
    
 def predict_and_eval(model, X_test, y_test):
 
