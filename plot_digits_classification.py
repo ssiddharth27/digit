@@ -27,11 +27,37 @@ hyperparameters = {'gamma':[0.001,0.01,0.1,1,10,100],"c_ranges":[0.1,1,2,5,10]}
 
 
 hyperparameter_combinations = get_hyperpara_combo(hyperparameters)
-test_dev_combinations = get_hyperpara_combo(test_dev)
+size_pref = [(4,4),(6,6),(8,8)]
+
 
 
 print("Total samples: ",len(digits.data))
 print("Shape: ",data[0].shape)
+
+for td in size_pref:
+
+    
+    cur_test_size = 0.2
+    cur_dev_size = 0.1
+    cur_train_size = 0.7
+    
+    
+    X_train, X_test, y_train, y_test, X_dev, y_dev = split_train_dev_test(data, digits.target, 
+                                                                          test_size = cur_test_size, dev_size = cur_dev_size)
+                                                                          
+    X_train = preprocess_data(X_train,td)
+    X_dev = preprocess_data(X_dev,td)
+    X_test = preprocess_data(X_test,td)
+    
+    best_gamma, best_crange, best_model, best_acc = tune_hparams(X_train, y_train, X_dev, y_dev, hyperparameter_combinations)
+    
+    train_acc = predict_and_eval(best_model, X_train, y_train)
+    test_acc = predict_and_eval(best_model, X_test, y_test)
+    
+    print(f"image_size = {td} test_size={cur_test_size} dev_size={cur_dev_size} train_size={round(cur_train_size,1)} train_acc={train_acc:.2f} dev_acc={best_acc:.2f} test_acc={test_acc:.2f}"  )
+    
+ 
+    
 
 
 #X_train, X_test, y_train, y_test, X_val, y_val = split_train_dev_test(data, digits.target, test_size = 0.20, dev_size = 0.30)

@@ -1,9 +1,13 @@
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
+from skimage.transform import  resize
 from itertools import product
 
-def preprocess_data(data):
+def preprocess_data(data,datasize):
    n_samples = len(data)
+   for i in data:
+      i = resize(i, datasize,
+                       anti_aliasing=True)
    data = data.reshape((n_samples,-1))
    return data
 
