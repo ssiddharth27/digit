@@ -19,7 +19,7 @@ jobs:
           ls -r ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Install dep
-        run:  pip install --no-cache-dir -r -U requirement.txt
+        run:  pip install --no-cache-dir -U -r requirement.txt
       - name: Run experiment
         run: python plot_digits_classification.py
       - run: echo "Added this statement"
