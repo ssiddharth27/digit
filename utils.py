@@ -1,9 +1,14 @@
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from skimage.transform import  resize
 from itertools import product
 
-def preprocess_data(data):
+def preprocess_data(data,datasize):
    n_samples = len(data)
+   for i in data:
+      i = resize(i, datasize,
+                       anti_aliasing=True)
    data = data.reshape((n_samples,-1))
    return data
 
@@ -36,7 +41,7 @@ def predict_and_eval(model, X_test, y_test):
    
    return accuracy
    
-def tune_hparams(X_train, Y_train, X_dev, y_dev, list_of_all_param_combinations):
+def tune_hparams_svc(X_train, Y_train, X_dev, y_dev, hyperparameters, list_of_all_param_combinations):
 
    best_acc = -1  
    hyperparameters = {'gamma':[0.001,0.01,0.1,1,10,100],"c_ranges":[0.1,1,2,5,10]} 
@@ -56,6 +61,31 @@ def tune_hparams(X_train, Y_train, X_dev, y_dev, list_of_all_param_combinations)
             best_acc = cur_dev_acc
             best_gamma = cur_gamma
             best_crange = cur_crange
+            best_model = cur_model
+	    
+   return best_gamma, best_crange, best_model, best_acc
+   
+   
+def tune_hparams_dt(X_train, Y_train, X_dev, y_dev, hyperparameters, list_of_all_param_combinations):
+
+   best_acc = -1  
+   hyperparameters_dt = {'depth':[None,10,20,30],"sample_split":[2,5,10]}
+   
+   for params in list_of_all_param_combinations:
+
+        hyperparameter_settings = dict(zip(hyperparameters.keys(), params))
+
+        depth = hyperparameter_settings['depth']
+        sample_split = hyperparameter_settings['sample_split']
+	
+        cur_model = DecisionTreeClassifier(max_depth=depth,min_samples_split = sample_split)
+        cur_model.fit(X_train, Y_train)
+
+        cur_dev_acc = predict_and_eval(cur_model, X_dev, y_dev)
+        if cur_dev_acc > best_acc:
+            best_acc = cur_dev_acc
+            best_gamma = depth
+            best_crange = sample_split
             best_model = cur_model
 	    
    return best_gamma, best_crange, best_model, best_acc
