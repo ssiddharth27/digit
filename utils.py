@@ -1,16 +1,21 @@
-from sklearn import datasets, metrics, svm
+from sklearn import datasets, metrics, svm, tree
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from skimage.transform import  resize
-from itertools import product
+from joblib import dump, load
 
-def preprocess_data(data,datasize):
-   n_samples = len(data)
-   for i in data:
-      i = resize(i, datasize,
-                       anti_aliasing=True)
-   data = data.reshape((n_samples,-1))
-   return data
+def preprocess_data(data):
+    # flatten the images
+    n_samples = len(data)
+    data = data.reshape((n_samples, -1))
+    return data
+   
+def train_model(x, y, model_params, model_type = "svm"):
+   if model_type == "svm":
+      clf = svm.SVC
+   if model_type == "tree":
+      clf = tree.DecisionTreeClassifier
+   model = clf(**model_params)
+   model.fit(x,y)
+   return model
 
 def split_train_dev_test(X, y, test_size, dev_size):
 
@@ -27,10 +32,23 @@ def split_train_dev_test(X, y, test_size, dev_size):
    
    return X_train, X_test, y_train, y_test, X_val, y_val
    
-def get_hyperpara_combo(hyper_dict):
+def get_combo(param_name, param_values, base_combinations):  
+  
+    new_combinations = []
+    for value in param_values:
+        for combination in base_combinations:
+            combination[param_name] = value
+            new_combinations.append(combination.copy()) 
+               
+    return new_combinations
 
-   hyperparameter_combinations = list(product(*hyper_dict.values()))
-   return hyperparameter_combinations
+def get_hyperpara_combo(dict_of_param_lists): 
+   
+    base_combinations = [{}]
+    for param_name, param_values in dict_of_param_lists.items():
+        base_combinations = get_combo(param_name, param_values, base_combinations)
+        
+    return base_combinations
    
 def predict_and_eval(model, X_test, y_test):
 
@@ -41,54 +59,59 @@ def predict_and_eval(model, X_test, y_test):
    
    return accuracy
    
-def tune_hparams_svc(X_train, Y_train, X_dev, y_dev, hyperparameters, list_of_all_param_combinations):
+def tune_hparams(X_train, Y_train, X_dev, y_dev, list_of_all_param_combinations, model_type):
 
    best_acc = -1  
-   hyperparameters = {'gamma':[0.001,0.01,0.1,1,10,100],"c_ranges":[0.1,1,2,5,10]} 
+   best_model_path = ""
    
    for params in list_of_all_param_combinations:
 
-        hyperparameter_settings = dict(zip(hyperparameters.keys(), params))
+        #hyperparameter_settings = dict(zip(hyperparameters.keys(), params))
 
-        cur_gamma = hyperparameter_settings['gamma']
-        cur_crange = hyperparameter_settings['c_ranges']
+        #cur_gamma = hyperparameter_settings['gamma']
+        #cur_crange = hyperparameter_settings['c_ranges']
 	
-        cur_model = svm.SVC(gamma=cur_gamma,C = cur_crange)
-        cur_model.fit(X_train, Y_train)
+        cur_model = train_model(X_train, Y_train, params, model_type)
+        #cur_model.fit(X_train, Y_train)
 
         cur_dev_acc = predict_and_eval(cur_model, X_dev, y_dev)
         if cur_dev_acc > best_acc:
             best_acc = cur_dev_acc
-            best_gamma = cur_gamma
-            best_crange = cur_crange
+            best_hparams = params
+            best_model_path = "./models/{}_".format(model_type) + "_".join(["{}:{}".format(k,v) for k,v in params.items()]) +   ".joblib"
+                               
             best_model = cur_model
+            
+   dump(best_model, best_model_path) 
+
+
+   return best_hparams, best_model_path, best_acc
 	    
-   return best_gamma, best_crange, best_model, best_acc
    
    
-def tune_hparams_dt(X_train, Y_train, X_dev, y_dev, hyperparameters, list_of_all_param_combinations):
+#def tune_hparams_dt(X_train, Y_train, X_dev, y_dev, hyperparameters, list_of_all_param_combinations):
 
-   best_acc = -1  
-   hyperparameters_dt = {'depth':[None,10,20,30],"sample_split":[2,5,10]}
+   #best_acc = -1  
+   #hyperparameters_dt = {'depth':[None,10,20,30],"sample_split":[2,5,10]}
    
-   for params in list_of_all_param_combinations:
+   #for params in list_of_all_param_combinations:
 
-        hyperparameter_settings = dict(zip(hyperparameters.keys(), params))
+    #    hyperparameter_settings = dict(zip(hyperparameters.keys(), params))
 
-        depth = hyperparameter_settings['depth']
-        sample_split = hyperparameter_settings['sample_split']
+     #   depth = hyperparameter_settings['depth']
+     #   sample_split = hyperparameter_settings['sample_split']
 	
-        cur_model = DecisionTreeClassifier(max_depth=depth,min_samples_split = sample_split)
-        cur_model.fit(X_train, Y_train)
+      #  cur_model = DecisionTreeClassifier(max_depth=depth,min_samples_split = sample_split)
+       # cur_model.fit(X_train, Y_train)
 
-        cur_dev_acc = predict_and_eval(cur_model, X_dev, y_dev)
-        if cur_dev_acc > best_acc:
-            best_acc = cur_dev_acc
-            best_gamma = depth
-            best_crange = sample_split
-            best_model = cur_model
+       # cur_dev_acc = predict_and_eval(cur_model, X_dev, y_dev)
+       # if cur_dev_acc > best_acc:
+        #    best_acc = cur_dev_acc
+         #   best_gamma = depth
+          #  best_crange = sample_split
+           # best_model = cur_model
 	    
-   return best_gamma, best_crange, best_model, best_acc
+  # return best_gamma, best_crange, best_model, best_acc
 	    
 	 
 

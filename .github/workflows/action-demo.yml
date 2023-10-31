@@ -18,12 +18,10 @@ jobs:
         run: |
           ls -r ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-      - name: Install sklearn
-        run:  pip install -U scikit-learn==1.3.1
-      - name: Install skimage
-        run:  pip install --pre scikit-image
       - name: Install dep
         run:  pip install --no-cache-dir -U -r requirement.txt
+      - name: Run Pytest
+        run: pytest
       - name: Run experiment
         run: python plot_digits_classification.py
       - run: echo "Added this statement"

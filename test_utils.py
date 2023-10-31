@@ -22,7 +22,7 @@ def test_hyper_value():
     hyper_para['c_value'] = c_val
     
     all_combination = get_hyperpara_combo(hyper_para)
-    expected_1 = (0.01, 100)
-    expected_2 = (0.1,1)
+    expected_1 = {'c_value': 1, "gamma":0.1}
+    expected_2 = {'c_value': 100, "gamma":0.01}
     
     assert (expected_1 in all_combination)  and (expected_2 in all_combination)
