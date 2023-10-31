@@ -6,3 +6,4 @@ COPY . /digit/
 RUN pip3 install -r /digit/requirement.txt
 WORKDIR /digit
 CMD ["pytest"]
+CMD ["python3", "plot_digits_classification.py"]

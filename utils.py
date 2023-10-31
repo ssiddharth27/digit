@@ -78,11 +78,11 @@ def tune_hparams(X_train, Y_train, X_dev, y_dev, list_of_all_param_combinations,
         if cur_dev_acc > best_acc:
             best_acc = cur_dev_acc
             best_hparams = params
-            best_model_path = "./models/{}_".format(model_type) + "_".join(["{}:{}".format(k,v) for k,v in params.items()]) +   ".joblib"
-                               
+            best_model_path = "/digit/models/{}_".format(model_type) + "_".join(["{}:{}".format(k,v) for k,v in params.items()]) +   ".joblib"
+            print(best_model_path)                   
             best_model = cur_model
             
-   dump(best_model, best_model_path) 
+        dump(best_model, best_model_path) 
 
 
    return best_hparams, best_model_path, best_acc
