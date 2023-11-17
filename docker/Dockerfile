@@ -5,4 +5,5 @@ COPY . /digit/
 #RUN apt-get install python3 python3-pip
 RUN pip3 install -r /digit/requirement.txt
 WORKDIR /digit
-CMD ["pytest"]
+ENV FLASK_APP=api/digit_pred
+CMD ["flask","run","--host=0.0.0.0"]
