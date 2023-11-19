@@ -1,4 +1,5 @@
 from api.app import app
+import json
 from sklearn import datasets, metrics, svm
 import pytest
 
@@ -35,9 +36,19 @@ def test_post_predict():
         for digit, payload in enumerate(sample_payloads):
             
             with app.test_client() as client:
+            
+                
                 response = client.post("/predict",json=payload)
                 #assert response.status_code == 200
-                assert int(response.get_data(as_text = True)) == digit
+                
+                        # Parse the JSON response and extract the predicted digit
+                response_data = json.loads(response.get_data(as_text=True))
+                predicted_digit = response_data['prediction']
+                assert predicted_digit == digit
+
+        # Assert predicted digit for each payload
+        #assert predicted_digit == digit
+         #       assert int(response.get_data(as_text = True)) == digit
                 assert response.status_code == 200
 	
 
