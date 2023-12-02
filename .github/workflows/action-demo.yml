@@ -23,5 +23,5 @@ jobs:
       - name: Run Pytest
         run: pytest
       - name: Run experiment
-        run: python plot_digits_classification.py
+        run: ./docker_run.sh
       - run: echo "Added this statement"
