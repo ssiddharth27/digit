@@ -1,5 +1,6 @@
 from sklearn import datasets, metrics, svm, tree
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from joblib import dump, load
 
 def preprocess_data(data):
@@ -8,6 +9,17 @@ def preprocess_data(data):
     data = data.reshape((n_samples, -1))
     return data
    
+def unit_normalization(data):
+
+    scaler = StandardScaler()
+    normalized_data = scaler.fit_transform(data)
+
+    return normalized_data
+
+
+# Now 'normalized_digits_data' contains the unit-normalized data
+# and 'digits_target' contains the corresponding target labels.
+
 def train_model(x, y, model_params, model_type = "svm"):
    if model_type == "svm":
       clf = svm.SVC
