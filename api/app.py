@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -9,3 +9,9 @@ def hello_world():
 @app.route("/", methods=["POST"])
 def hello_world_post():    
     return {"op" : "Hello, World POST " + request.json["suffix"]}
+    
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Your prediction logic goes here
+    # This is just a placeholder response
+    return jsonify({'prediction': 0})
